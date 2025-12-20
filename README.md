@@ -1,4 +1,4 @@
-# Pre-Project Plan: Chess-Playing Robotic Arm
+# Chess-Playing Robotic Arm
 
 **Main Hardware Components:**
 
