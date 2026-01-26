@@ -6,7 +6,7 @@
 - Raspberry Pi 4B (8G) [Url](https://uk.rs-online.com/web/p/raspberry-pi/1822098?gb=a)
 - Adafruit 16-Channel PWM Driver [Url](https://thepihut.com/products/adafruit-16-channel-12-bit-pwm-servo-driver-i2c-interface-pca9685)
 - Pi Camera [Url](https://www.rapidonline.com/raspberry-pi-sc1224-camera-module-3-wide-angle-lens-75-1238)
-- LRS-50 Power Supply [Url](https://www.rapidonline.com/mean-well-lrs-50-5-smpsu-low-profile-5v-10a-50w-en60335-1-compliance-05-1085)
+- LRS-50 Power Supply [Url](https://www.rapidonline.com/mean-well-lrs-50-5-smpsu-low-profile-5v-10a-50w-en60335-1-compliance-05-1085) (request denied)
 
 ## Project Structure Overview
 ```mermaid
@@ -30,7 +30,7 @@ graph TD
         EE2(Member 5: Driver/Calibration) -.-> D
         EE3(Member 6: Kinematics/IK) -.-> Arm
     end
-    
+
     subgraph "System Core"
         Pi[Raspberry Pi 4B]
         Main -- "Target Coords (x,y,z)" --> IK[Inverse Kinematics]
@@ -40,7 +40,7 @@ graph TD
     CV -.-> Main
     Main -.-> IK
     P -.-> Pi
-    
+
 
 ```
 
@@ -81,7 +81,7 @@ graph TD
 
 - Read the instructions of all the components, take notes of the power demand(Current and Voltage).
 - Study to use CAD software basically (AutoCAD, EasyEDA ...).
-- Complete the design graph for the overall wire connection using CAD software. 
+- Complete the design graph for the overall wire connection using CAD software.
   - If it takes too much time to learn the software, please ensure there is a hand-draw graph before week 1.
 - Implement an emergency stop mechanism if possible.
 
