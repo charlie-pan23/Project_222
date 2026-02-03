@@ -1,13 +1,14 @@
 # Logbook Group21
 Project: Chess-Playing Robotic Arm
 
-Members:
-- Ben Hollington
-- Junyi Li
-- Kieran Fong
-- Mohamed Hegazy
-- Mochi Pan
-- Weican Hong
+|Members| ID |
+|---|---|
+|Ben Hollington|201854508|
+|Junyi Li|201779164|
+|Kieran Fong|201786454|
+|Mohamed Hegazy|201825978|
+|Mochi Pan|201779181|
+|Weican Hong|201779177|
 
 
 **Main Hardware Components:**
@@ -17,8 +18,7 @@ Members:
 - Adafruit 16-Channel PWM Driver ([Url](https://thepihut.com/products/adafruit-16-channel-12-bit-pwm-servo-driver-i2c-interface-pca9685))
 - Pi Camera ([Url](https://www.rapidonline.com/raspberry-pi-sc1224-camera-module-3-wide-angle-lens-75-1238))
 
-
-## Week 1 
+## Week 1
 
 1. **Hardware Inventory & Validation**
     - Component Verification: Received all project components, including the Joy-it robotic arm kit, PCA9685 servo driver, and Raspberry Pi.
