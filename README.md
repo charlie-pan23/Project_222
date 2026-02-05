@@ -100,3 +100,7 @@ graph TD
 - Study Python Libraries `ikpy`. (I don't know if this is good to use).
 - Learn 3D modeling software (Solidworks...) if possible.
 - Try to design the overall structure and appearance using 3D modeling software.
+
+
+## Wire instruction
+![Wire example](./Pictures/RobotArm_bb.png)
