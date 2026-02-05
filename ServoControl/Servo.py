@@ -50,6 +50,7 @@ class ServoDevice:
         """
         if self.current_angle is None:
             self.move_to(target_angle)
+            self.current_angle = target_angle
             return
 
         start = int(self.current_angle)

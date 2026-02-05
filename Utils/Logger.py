@@ -7,7 +7,13 @@ logger.debug("This is a debug message")
 logger.info(f"This is an info message: {message}")
 '''
 
+import sys
+from pathlib import Path
 import logging
+
+root_dir = Path(__file__).resolve().parent.parent
+if str(root_dir) not in sys.path:
+    sys.path.insert(0, str(root_dir))
 
 class CustomFormatter(logging.Formatter):
 
