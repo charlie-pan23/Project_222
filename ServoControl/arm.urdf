@@ -1,9 +1,7 @@
 <?xml version="1.0"?>
 <robot name="chess_arm">
 
-  <link name="base_link">
-    <visual><geometry><cylinder length="0.05" radius="0.1"/></geometry></visual>
-  </link>
+  <link name="base_link"/>
 
   <joint name="s0_yaw" type="revolute">
     <parent link="base_link"/>
@@ -18,7 +16,7 @@
   <joint name="s1_pitch" type="revolute">
     <parent link="link_s1"/>
     <child link="link_s2"/>
-    <origin xyz="0.1 0.1 0.3" rpy="0 0 0"/>
+    <origin xyz="0.015 0.01 0.025" rpy="0 0 0"/>
     <axis xyz="0 1 0"/>
     <limit lower="-1.57" upper="1.57" effort="1.0" velocity="1.0"/>
   </joint>
@@ -28,7 +26,7 @@
   <joint name="s2_pitch" type="revolute">
     <parent link="link_s2"/>
     <child link="link_s3"/>
-    <origin xyz="0 0 0.15" rpy="0 0 0"/>
+    <origin xyz="0 0 0.105" rpy="0 1.5708 0"/>
     <axis xyz="0 1 0"/>
     <limit lower="-1.57" upper="1.57" effort="1.0" velocity="1.0"/>
   </joint>
@@ -38,7 +36,7 @@
   <joint name="s3_pitch" type="revolute">
     <parent link="link_s3"/>
     <child link="link_s4"/>
-    <origin xyz="0 0 0.104" rpy="0 0 0"/>
+    <origin xyz="0.025 0 -0.05" rpy="0 1.5708 0"/>
     <axis xyz="0 1 0"/>
     <limit lower="-1.57" upper="1.57" effort="1.0" velocity="1.0"/>
   </joint>
@@ -48,21 +46,18 @@
   <joint name="s4_roll" type="revolute">
     <parent link="link_s4"/>
     <child link="link_s5"/>
-    <origin xyz="0 0.1 0" rpy="0 0 0"/>
-    <axis xyz="1 0 0"/>
-    <limit lower="-1.57" upper="1.57" effort="1.0" velocity="1.0"/>
+    <origin xyz="0.02 0 -0.10" rpy="0 0 0"/>
+    <axis xyz="1 0 0"/> <limit lower="-3.14" upper="3.14" effort="1.0" velocity="1.0"/>
   </joint>
 
   <link name="link_s5"/>
 
-  <joint name="s5_gripper" type="revolute">
+  <joint name="gripper_tip_joint" type="fixed">
     <parent link="link_s5"/>
-    <child link="tool_tip"/>
-    <origin xyz="0 0.02 -0.095" rpy="0 0 0"/>
-    <axis xyz="0 1 0"/>
-    <limit lower="0.349" upper="0.785" effort="1.0" velocity="1.0"/>  <!-- 0.349 rad = 20 degrees, 0.785 rad = 45 degrees -->
+    <child link="grasp_target"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
   </joint>
 
-  <link name="tool_tip"/>
+  <link name="grasp_target"/>
 
 </robot>
