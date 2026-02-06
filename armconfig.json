@@ -1,0 +1,64 @@
+{
+    "servos": [
+        {
+            "id": "s0_yaw",
+            "channel": 0,
+            "zero_offset": 82.0,
+            "direction": 1,
+            "min_limit": 0,
+            "max_limit": 180,
+            "min_pulse": 500,
+            "max_pulse": 2400
+        },
+        {
+            "id": "s1_pitch",
+            "channel": 1,
+            "zero_offset": 102.0,
+            "direction": 1,
+            "min_limit": 20,
+            "max_limit": 160,
+            "min_pulse": 500,
+            "max_pulse": 2400
+        },
+        {
+            "id": "s2_pitch",
+            "channel": 2,
+            "zero_offset": 75.0,
+            "direction": 1,
+            "min_limit": 10,
+            "max_limit": 170,
+            "min_pulse": 500,
+            "max_pulse": 2400
+        },
+        {
+            "id": "s3_pitch",
+            "channel": 4,
+            "zero_offset": 5,
+            "direction": 1,
+            "min_limit": 0,
+            "max_limit": 180,
+            "min_pulse": 500,
+            "max_pulse": 2400
+        },
+        {
+            "id": "s4_roll",
+            "channel": 5,
+            "zero_offset": 160.0,
+            "direction": 1,
+            "min_limit": 0,
+            "max_limit": 180,
+            "min_pulse": 500,
+            "max_pulse": 2400
+        },
+        {
+            "id": "s5_gripper",
+            "channel": 8,
+            "zero_offset": 20.0,
+            "direction": 1,
+            "min_limit": 20,
+            "max_limit": 45,
+            "min_pulse": 500,
+            "max_pulse": 2400
+        }
+    ]
+}

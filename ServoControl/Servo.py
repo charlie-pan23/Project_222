@@ -1,6 +1,7 @@
 import time
 from adafruit_motor import servo
 from Utils.Logger import get_logger
+import numpy as np
 
 logger = get_logger(__name__)
 
@@ -8,15 +9,18 @@ class ServoDevice:
     """
     General-purpose servo control base class for a single servo connected to PCA9685.
     """
-    def __init__(self, pca_channels, channel, min_pulse=500, max_pulse=2400, actuation_range=180):
+    def __init__(self, pca_channels, channel, zero_offset=90, direction=1,min_pulse=500, max_pulse=2400, actuation_range=180):
         """
         Initialize the servo
         :param pca_channels: The 'channels' attribute of a PCA9685 object
         :param channel: Physical channel number on the board (0-15)
+        :param zero_offset: Mechanical offset in degrees to align the servo's 0 position in URDF(default 90)
         :param min_pulse: Minimum pulse width (default 500)
         :param max_pulse: Maximum pulse width (default 2400)
         :param actuation_range: Total physical range of the servo in degrees (default 180)
         """
+        self.zero_offset = zero_offset
+        self.direction = direction
         self.channel_num = channel
         self.servo = servo.Servo(
             pca_channels[channel],
@@ -26,6 +30,8 @@ class ServoDevice:
         )
         self.current_angle = None
         self.range = actuation_range
+        self.min_limit = 0.0     # Physical safety floor
+        self.max_limit = 180.0   # Physical safety ceiling
 
     def move_to(self, angle):
         if angle < 0: angle = 0
@@ -33,6 +39,11 @@ class ServoDevice:
 
         self.servo.angle = angle
         self.current_angle = angle
+
+    def move_to_radian(self, radian):
+        angle_diff = np.degrees(radian)
+        target_angle = (angle_diff * self.direction) + self.zero_offset
+        self.move_to(target_angle)
 
     def set_fraction(self, fraction):
         """
