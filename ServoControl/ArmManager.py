@@ -16,12 +16,10 @@ class ArmManager:
         for cfg in config_data['servos']:
             s = ServoDevice(
                 pca_channels=pca_channels,
-                channel=cfg['channel'],
-                min_pulse=cfg.get('min_pulse', 500),
-                max_pulse=cfg.get('max_pulse', 2400)
+                channel=cfg['channel']
             )
             # Injecting calibration parameters directly
-            s.zero_offset = cfg['zero_offset']
+            s.zero_offset = 90 + cfg['zero_adjusting']
             s.direction = cfg['direction']
             s.min_limit = cfg['min_limit']
             s.max_limit = cfg['max_limit']
@@ -30,49 +28,42 @@ class ArmManager:
         self.servo_count = 6
         logger.info("6-axis hardware interface initialized.")
 
-    def move_to_radians(self, target_radians, duration=1.5):
+    def arm_init(self):
+        """Move all servos to their zero positions."""
+        for s in self.servos:
+            s.smooth_move(s.zero_offset)
+        logger.info("Arm initialized to zero positions.")
+
+    def move_arm(self, angles):
         """
-        Synchronized movement for exactly 6 axes.
-        :param target_radians: List or array of 6 radians from IK solver.
-        :param duration: Time in seconds for the complete motion.
+        Move the arm to the specified angles.
+        :param angles: List of 4 angles in degrees for J1 to J4.
         """
-        if len(target_radians) != self.servo_count:
-            logger.error(f"Expected 6 radians, got {len(target_radians)}")
+        if len(angles) != 4:
+            logger.error(f"Expected 4 angles, got {len(angles)}.")
             return
+        # Apply zero offsets
+        angles = [angles[i] + self.servos[i].zero_offset for i in range(4)]
+        current_angles = [s.current_angle for s in self.servos[:4]]
+        diff_angles = [angles[i] - current_angles[i] for i in range(4)]
+        separate = (max(abs(diff_angles)) - min(abs(diff_angles))) / 2
+        move_angles = (diff_angles[i] / separate for i in range(4))
+        for i in range(int(separate)):
+            for j in range(4):
+                self.servos[j].move_to(current_angles[j] + move_angles[j])
+            current_angles = [s.current_angle for s in self.servos[:4]]
+            time.sleep(0.05)  # Adjust sleep for smoother movement
+        for j in range(4):
+                self.servos[j].move_to(angles[j])
 
-        # Pre-calculate target angles to avoid repeated computation in the loop
-        target_angles = np.zeros(self.servo_count)
-        start_angles = np.zeros(self.servo_count)
+        logger.info(f"Arm moved to angles: {angles}")
 
-        for i in range(self.servo_count):
-            # Transformation: Physical_Angle = (Math_Radian_to_Degree * Direction) + Zero_Offset
-            deg = np.degrees(target_radians[i]) * self.servos[i].direction + self.servos[i].zero_offset
-            # Apply physical safety boundary
-            target_angles[i] = np.clip(deg, self.servos[i].min_limit, self.servos[i].max_limit)
-
-            # Fetch current position for interpolation
-            curr = self.servos[i].get_current_angle()
-            start_angles[i] = curr if curr is not None else target_angles[i]
-
-        # Execution loop
-        hz = 50
-        steps = max(1, int(duration * hz))
-        step_interval = 1 / hz
-
-        for step in range(1, steps + 1):
-            fraction = step / steps
-            # Simultaneously update all 6 axes
-            for i in range(self.servo_count):
-                # Linear formula: Start + (Total_Distance * Progress_Percentage)
-                interp_angle = start_angles[i] + (target_angles[i] - start_angles[i]) * fraction
-                self.servos[i].move_to(interp_angle)
-            time.sleep(step_interval)
-
-    def set_gripper(self, angle):
+    def set_gripper(self, status):
         """
         Directly control the gripper (S5).
-        :param angle: 20 for close, 45 for open.
+        :param status: 0 for "close", 30 for "open".
         """
+        angle = self.servos[5].offset + (30 if status == "open" else 0)
         self.servos[5].move_to(angle)
 
     def release_all(self):

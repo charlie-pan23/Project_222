@@ -1,7 +1,5 @@
-# Usage example: angles, status = solve_ik(*target)
-
 import numpy as np
-from Utils.Logger import get_logger
+from Sim import plot_robot_arm
 
 def solve_ik(target_x, target_y, target_z):
     """
@@ -11,7 +9,6 @@ def solve_ik(target_x, target_y, target_z):
                 J4 - s3_pitch
     Angle limited [-90, 90] degrees for each joint.
     """
-    target = [target_x, target_y, target_z]
     # physical dimensions in cm
     L1_h, L1_v = 1.5, 9.5
     L2 = 10.5
@@ -80,13 +77,17 @@ def solve_ik(target_x, target_y, target_z):
             break
 
     if best_solution:
-        get_logger().info(f"Coordinate {target} | Angles: {angles}")
         return best_solution, "Success"
     else:
-        get_logger().error(f"Coordinate {target} | Calculate failed: {status}")
         return None, "No solution within joint limits"
 
+# --- Test ---
+target = [0, 10, 0]
+angles, status = solve_ik(*target)
 
-
-
+if angles:
+    print(f"Coordinate {target} | Angles: {angles}")
+    plot_robot_arm(*angles)
+else:
+    print(f"Coordinate {target} | Calculate failed: {status}")
 
