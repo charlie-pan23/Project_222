@@ -83,7 +83,7 @@ def solve_ik(target_x, target_y, target_z):
         get_logger().info(f"Coordinate {target} | Angles: {angles}")
         return best_solution, "Success"
     else:
-        get_logger().error(f"Coordinate {target} | Calculate failed: {status}")
+        get_logger().error(f"Coordinate {target} | Calculate failed: No solution within joint limits")
         return None, "No solution within joint limits"
 
 
