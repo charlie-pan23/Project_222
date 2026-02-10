@@ -46,7 +46,8 @@ Project: Chess-Playing Robotic Arm
 
 ### Plan for Week 2
 
-1. Complete basic build of hardware.
-2. Hang the camera to a suitable position.
-3. Pick something up and put things down.
-4. Detect the chessboard and know where each pieces located.
+1. Complete basic build of hardware. (B.H. K.F. M.H.)
+2. Hang the camera to a suitable position. (K.F.)
+3. Pick something up and put things down. (M.P.)
+4. Detect the chessboard and know where each pieces located. (J.L.)
+5. Basically complete the logic processing. (W.H.)
