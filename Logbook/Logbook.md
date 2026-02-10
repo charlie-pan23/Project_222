@@ -1,5 +1,6 @@
 # Logbook Group21
-Project: Chess-Playing Robotic Arm
+
+**Project: Chess-Playing Robotic Arm**
 
 |Members| ID |
 |---|---|
@@ -17,6 +18,43 @@ Project: Chess-Playing Robotic Arm
 - Raspberry Pi 4B (8G) ([Url](https://uk.rs-online.com/web/p/raspberry-pi/1822098?gb=a))
 - Adafruit 16-Channel PWM Driver ([Url](https://thepihut.com/products/adafruit-16-channel-12-bit-pwm-servo-driver-i2c-interface-pca9685))
 - Pi Camera ([Url](https://www.rapidonline.com/raspberry-pi-sc1224-camera-module-3-wide-angle-lens-75-1238))
+
+## Project Structure Overview
+```mermaid
+graph TD
+    subgraph "Software Part (CSEE)"
+        Cam[Pi Camera] -- Images --> CV[Vision: OpenCV]
+        CV -- "Detected Movement" --> Logic[Logic: Stockfish Engine]
+        Logic -- "Best Movement Response" --> Main[Integration: Coordinate Trans]
+        CSEE1(Member 1: Vision) -.-> CV
+        CSEE2(Member 2: Logic) -.-> Logic
+        CSEE3(Member 3: Integration) -.-> Main
+    end
+
+    subgraph "Hardware Part (EE)"
+        P[Power Supply LRS-50] -- 230V AC input --> W[Wiring and  Safety]
+        W -- 5V/High Current --> D[PCA9685 Driver]
+        W -- 5V/Low Current --> Pi
+        D -- PWM Signal --> S[6x Servos]
+        S --> Arm[Robotic Arm Structure]
+        EE1(Member 4: Power/Safety) -.-> W
+        EE2(Member 5: Driver/Calibration) -.-> D
+        EE3(Member 6: Kinematics/IK) -.-> Arm
+    end
+
+    subgraph "System Core"
+        Pi[Raspberry Pi 4B]
+        Main -- "Target Coords (x,y,z)" --> IK[Inverse Kinematics]
+        IK -- "Servo Angles" --> D
+    end
+
+    CV -.-> Main
+    Main -.-> IK
+    P -.-> Pi
+
+
+```
+
 
 ## Week 1
 
@@ -51,3 +89,32 @@ Project: Chess-Playing Robotic Arm
 3. Pick something up and put things down. (M.P.)
 4. Detect the chessboard and know where each pieces located. (J.L.)
 5. Basically complete the logic processing. (W.H.)
+
+## Week 2
+
+* Turn to Lab room 302A for the power supply.
+
+### Finished
+
+1. **Structural Completion** (M.H. K.F.)
+   - Finalized the physical build by securely mounting the microcontroller and driver boards to the robotic arm base for improved stability.
+   - Planned and executed a systematic wiring layout to ensure no cable interference during high-degree-of-freedom maneuvers.
+2. **CAD Design** (K.F.)
+   - Completed the 3D CAD modeling for a camera bracket; design files have been exported and sent for laser cutting.
+3. **Kinematics Solving** (M.P.)
+   - Inverse Kinematics (IK) Solving: Developed and verified the IK solver to translate target Cartesian coordinates into precise joint angles for the 4-axis system. `IK.py` *(Further testing needed)*
+   - Multi-Servo Synchronization: Developed a driver `ArmManager.py` to facilitate simultaneous movement of all six servos, replacing sequential movement with fluid, synchronized trajectories.
+   - Programmed and tested the gripper actuation sequences for chess piece handling. *(Further testing needed)*
+4. **Computer Vision & Coordinate Mapping** (J.L.)
+   - Chessboard Detection: Implemented image processing algorithms to detect board boundaries and map them to a localized coordinate system.
+   - Data Logging: Developed an automated feature to capture and save processed images for debugging and verification of the board state recognition.
+5. **System Logic** (W.H.)
+   - AI Module Integration: Successfully integrated the AI decision-making module (Stockfish) with the hardware control loop to enable full "perception-to-action" executability. *(Further testing needed)*
+   - Concurrency & Robustness: * Identified a critical logic error where asynchronous user inputs (e.g., pressing 'Enter' during actuation) caused state desynchronization. Resolved this by implementing a Status Check/Blocking Mechanism that prevents input processing while the arm is in motion. This ensures the system maintains a consistent state and prevents invalid move calculations.
+
+### Plan for Week 3
+
+1. Further testing Kinematics and . (M.P.)
+2. Vision detects which piece and where it is located. (J.L.)
+3. Develop the main part: `main.py` (M.P. W.H. J.L.)
+4. Start to deal with the poster.(B.H. M.H. K.F.)
