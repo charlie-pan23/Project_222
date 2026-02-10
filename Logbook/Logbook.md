@@ -20,6 +20,7 @@ Project: Chess-Playing Robotic Arm
 
 ## Week 1
 
+### Finished
 1. **Hardware Inventory & Validation**
     - Component Verification: Received all project components, including the Joy-it robotic arm kit, PCA9685 servo driver, and Raspberry Pi.
     - Integrity Check: Performed visual inspections and basic power-on tests to verify the integrity and functionality of all electronic modules.
@@ -42,3 +43,10 @@ Project: Chess-Playing Robotic Arm
     - Hardware Optimization: Refined the overall hardware design based on assembly findings, specifically improving cable management and power distribution.
     - Software Framework: Developed the preliminary software architecture, defining the interfaces between the vision module (input), the chess engine (logic), and the servo controller (output).
     - API Definition: Drafted initial API endpoints for the "Move Execution" and "Board Recognition" modules.
+
+### Plan for Week 2
+
+1. Complete basic build of hardware.
+2. Hang the camera to a suitable position.
+3. Pick something up and put things down.
+4. Detect the chessboard and know 
