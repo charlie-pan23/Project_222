@@ -49,4 +49,4 @@ Project: Chess-Playing Robotic Arm
 1. Complete basic build of hardware.
 2. Hang the camera to a suitable position.
 3. Pick something up and put things down.
-4. Detect the chessboard and know 
+4. Detect the chessboard and know where each pieces located.
