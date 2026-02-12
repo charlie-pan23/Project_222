@@ -9,17 +9,17 @@ class ServoDevice:
     """
     General-purpose servo control base class for a single servo connected to PCA9685.
     """
-    def __init__(self, pca_channels, channel, zero_offset=90, direction=1,min_pulse=500, max_pulse=2400, actuation_range=180):
+    def __init__(self, pca_channels, channel, offset=90, direction=1,min_pulse=500, max_pulse=2400, actuation_range=180):
         """
         Initialize the servo
         :param pca_channels: The 'channels' attribute of a PCA9685 object
         :param channel: Physical channel number on the board (0-15)
-        :param zero_offset: Mechanical offset in degrees to align the servo's 0 position in URDF(default 90)
+        :param offset: Mechanical offset in degrees to align the servo's 0 position in URDF(default 90)
         :param min_pulse: Minimum pulse width (default 500)
         :param max_pulse: Maximum pulse width (default 2400)
         :param actuation_range: Total physical range of the servo in degrees (default 180)
         """
-        self.zero_offset = zero_offset
+        self.offset = offset
         self.direction = direction
         self.channel_num = channel
         self.servo = servo.Servo(
@@ -42,7 +42,7 @@ class ServoDevice:
 
     def move_to_radian(self, radian):
         angle_diff = np.degrees(radian)
-        target_angle = (angle_diff * self.direction) + self.zero_offset
+        target_angle = (angle_diff * self.direction) + self.offset
         self.move_to(target_angle)
 
     def set_fraction(self, fraction):

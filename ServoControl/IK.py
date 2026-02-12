@@ -3,6 +3,8 @@
 import numpy as np
 from Utils.Logger import get_logger
 
+logger = get_logger(__name__)
+
 def solve_ik(target_x, target_y, target_z):
     """
     4 servos:   J1 - s0_yaw
@@ -13,7 +15,7 @@ def solve_ik(target_x, target_y, target_z):
     """
     target = [target_x, target_y, target_z]
     # physical dimensions in cm
-    L1_h, L1_v = 1.5, 9.5
+    L1_h, L1_v = 1, 9.5
     L2 = 10.5
     L3 = 10.0
     L4_v, L4_h = -5.0, 4.5
@@ -75,15 +77,15 @@ def solve_ik(target_x, target_y, target_z):
         angles = [(a + 180) % 360 - 180 for a in angles]
 
         # Check if all angles are within limits
-        if all(-90.1 <= a <= 90.1 for a in angles): # 0.1 degree tolerance
+        if all(-100.1 <= a <= 100.1 for a in angles): # 0.1 degree tolerance
             best_solution = [round(a, 2) for a in angles]
             break
 
     if best_solution:
-        get_logger().info(f"Coordinate {target} | Angles: {angles}")
+        get_logger(__name__).info(f"Coordinate {target} | Angles: {angles}")
         return best_solution, "Success"
     else:
-        get_logger().error(f"Coordinate {target} | Calculate failed: No solution within joint limits")
+        get_logger(__name__).error(f"Coordinate {target} | Calculate failed: No solution within joint limits")
         return None, "No solution within joint limits"
 
 

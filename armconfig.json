@@ -12,7 +12,7 @@
             "id": "s1_pitch",
             "channel": 1,
             "zero_adjusting": 12,
-            "direction": 1,
+            "direction": -1,
             "min_limit": 0,
             "max_limit": 180
         },
@@ -27,8 +27,8 @@
         {
             "id": "s3_pitch",
             "channel": 4,
-            "zero_adjusting": -85,
-            "direction": 1,
+            "zero_adjusting": 10,
+            "direction": -1,
             "min_limit": 0,
             "max_limit": 180
         },
@@ -43,7 +43,7 @@
         {
             "id": "s5_gripper",
             "channel": 8,
-            "zero_adjusting": 20.0,
+            "zero_adjusting": -65,
             "direction": 1,
             "min_limit": 0,
             "max_limit": 30
