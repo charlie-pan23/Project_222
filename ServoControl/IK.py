@@ -39,9 +39,9 @@ def solve_ik(target_x, target_y, target_z):
     dist_sq = tx**2 + tz**2
     dist = np.sqrt(dist_sq)
 
-    # cheak reachability
-    if not (abs(L2 - L3) <= dist <= (L2 + L3)):
-        return None, "Target Unreachable"
+    # # cheak reachability
+    # if not (7 <= dist <= 24):
+    #     return None, "Target Unreachable"
 
     # J2, J3, J4
     # sign=1/-1

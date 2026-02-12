@@ -89,9 +89,9 @@ class ArmManager:
         :param status: 0 for "close", 30 for "open".
         """
         if status == "open":
-            angle = 45
+            angle = 30
         elif status == "close":
-            angle = 25
+            angle = 15
         else:
             logger.error(f"Wrong gripper statu {status}")
 

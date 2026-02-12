@@ -14,16 +14,38 @@ Arm1 = ArmManager(pca_channels=pca.channels)
 Arm1.arm_init()
 time.sleep(1)
 
-target = [25,0,5]
-angles, status = solve_ik(*target)
-if angles:
-    Arm1.move_arm(angles)
-else:
-    print(f"IK Failed: {status}")
+target1 = [20.5,2,5]
+angles1, status1 = solve_ik(*target1)
+Arm1.move_arm(angles1)
+time.sleep(1)
 
-angle = (Arm1.servos[0].current_angle, Arm1.servos[1].current_angle, Arm1.servos[2].current_angle, Arm1.servos[3].current_angle)
+Arm1.set_gripper("open")
+time.sleep(1)
 
-print(angle[0], angle[1], angle[2], angle[3])
+target2 = [20.5,2,2]
+angles2, status2 = solve_ik(*target2)
+Arm1.move_arm(angles2)
+time.sleep(1)
+
+Arm1.set_gripper("close")
+time.sleep(1)
+
+Arm1.move_arm(angles1)
+time.sleep(1)
+
+target1 = [16,-2,5]
+angles1, status1 = solve_ik(*target1)
+Arm1.move_arm(angles1)
+time.sleep(1)
+
+target2 = [16,-2,2]
+angles2, status2 = solve_ik(*target2)
+Arm1.move_arm(angles2)
+time.sleep(1)
+
+Arm1.set_gripper("open")
+time.sleep(1)
+
 
 
 
