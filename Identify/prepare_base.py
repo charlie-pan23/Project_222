@@ -17,7 +17,7 @@ def generate_base():
 
     avg_img = np.mean(imgs, axis=0).astype(np.uint8)
 
-    src_pts = np.float32([[330, 259], [849, 227], [946, 720], [264, 764]])
+    src_pts = np.float32([[349, 296], [878, 277], [966, 807], [262, 825]])
     dst_pts = np.float32([[0, 0], [800, 0], [800, 800], [0, 800]])
 
     M = cv2.getPerspectiveTransform(src_pts, dst_pts)
@@ -29,3 +29,5 @@ def generate_base():
 
 if __name__ == "__main__":
     generate_base()
+
+

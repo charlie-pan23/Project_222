@@ -83,4 +83,4 @@ def verify_perspective(image_path):
 
 if __name__ == "__main__":
     # Test with the sample image you provided
-    verify_perspective("chess_data/Empty Board_1.jpg")
+    verify_perspective("chess_data/Empty_Board_1.jpg")
