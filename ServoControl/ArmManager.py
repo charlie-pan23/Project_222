@@ -96,6 +96,12 @@ class ArmManager:
             self.current_angles[i] = target_angles[i]
         logger.info(f"Arm moved to angles (absolute): {[round(a, 2) for a in target_angles]}")
 
+    def arm_rest(self):
+        """Move the arm to a predefined "rest" position."""
+        rest_angles = [0, -50, -30, 0]  # Define your rest angles here
+        self.move_arm(rest_angles)
+        logger.info("Arm moved to rest position.")
+
     def goto_coordinate(self, x, y, z):
         """
         Move the arm to the specified XYZ coordinate.
