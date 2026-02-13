@@ -1,5 +1,5 @@
 from ServoControl.ArmManager import ArmManager
-from ServoControl.IK import solve_ik
+from ServoControl.kinematics import solve_ik
 import board
 import busio
 from adafruit_pca9685 import PCA9685

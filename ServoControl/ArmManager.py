@@ -32,13 +32,24 @@ class ArmManager:
             self.servos.append(s)
 
         self.servo_count = 6
+        self.current_pos = [0, 0, 0]  # Default position for the end effector
+        self.current_angles = [0, 0, 0, 0, 0, 0]
         logger.info("6-axis hardware interface initialized.")
 
     def arm_init(self):
         """Move all servos to their zero positions."""
         for s in self.servos:
             s.smooth_move(s.offset)
+        for i in range(6):
+            self.current_angles[i] = self.servos[i].offset
+        self.current_pos = [15.5, 0, 5] # Default "home" position
         logger.info("Arm initialized to zero positions.")
+
+    def release_all(self):
+        """Stop PWM signal to all 6 servos."""
+        for s in self.servos:
+            s.release()
+        logger.info("All 6 axes powered down.")
 
     def move_arm(self, angles):
         """
@@ -81,7 +92,27 @@ class ArmManager:
         for j in range(4):
             self.servos[j].move_to(target_angles[j])
 
+        for i in range(4):
+            self.current_angles[i] = target_angles[i]
         logger.info(f"Arm moved to angles (absolute): {[round(a, 2) for a in target_angles]}")
+
+    def goto_coordinate(self, x, y, z):
+        """
+        Move the arm to the specified XYZ coordinate.
+        :param x: X coordinate in cm
+        :param y: Y coordinate in cm
+        :param z: Z coordinate in cm
+        """
+        from ServoControl.kinematics import solve_ik
+        angles, status = solve_ik(x, y, z)
+
+        if status == "Success":
+            self.move_arm(angles)
+            self.current_pos = [x, y, z]
+            return True
+        else:
+            logger.error(f"Move failed: {status}")
+            return False
 
     def set_gripper(self, status):
         """
@@ -93,12 +124,45 @@ class ArmManager:
         elif status == "close":
             angle = 15
         else:
-            logger.error(f"Wrong gripper statu {status}")
+            logger.error(f"Wrong gripper status {status}")
 
         self.servos[5].smooth_move(angle,20)
+        self.current_angles[5] = angle
 
-    def release_all(self):
-        """Stop PWM signal to all 6 servos."""
-        for s in self.servos:
-            s.release()
-        logger.info("All 6 axes powered down.")
+    def get_current_pos(self):
+        return self.current_pos
+
+    def get_current_angles(self):
+        return self.current_angles
+
+    def grip(self):
+        '''
+        grab the piece at current xy coordinate, move up to safe height after grab
+        '''
+        x, y, _ = self.current_pos
+        logger.info(f"Executing GRIP at x={x}, y={y}")
+
+        self.goto_coordinate(x, y, 5)
+        time.sleep(0.5)
+        self.set_gripper("open")
+        time.sleep(0.5)
+        self.goto_coordinate(x, y, 2)
+        time.sleep(0.5)
+        self.set_gripper("close")
+        time.sleep(0.5)
+        self.goto_coordinate(x, y, 5)
+
+    def loose(self):
+        """
+        release the piece at current xy coordinate, move up to safe height after release"""
+        x, y, _ = self.current_pos
+        logger.info(f"Executing LOOSE at x={x}, y={y}")
+
+        self.goto_coordinate(x, y, 2)
+        time.sleep(0.5)
+        self.set_gripper("open")
+        time.sleep(0.5)
+        self.goto_coordinate(x, y, 5)
+        time.sleep(0.5)
+        self.set_gripper("close")
+

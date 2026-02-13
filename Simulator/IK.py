@@ -10,7 +10,7 @@ def solve_ik(target_x, target_y, target_z):
     Angle limited [-90, 90] degrees for each joint.
     """
     # physical dimensions in cm
-    L1_h, L1_v = 1.5, 9.5
+    L1_h, L1_v = 1, 9.5
     L2 = 10.5
     L3 = 10.0
     L4_v, L4_h = -5.0, 4.5
@@ -82,7 +82,7 @@ def solve_ik(target_x, target_y, target_z):
         return None, "No solution within joint limits"
 
 # --- Test ---
-target = [0, 10, 0]
+target = [15.5, 0, 5]
 angles, status = solve_ik(*target)
 
 if angles:

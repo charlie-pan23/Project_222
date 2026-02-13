@@ -1,5 +1,5 @@
 from ServoControl.ArmManager import ArmManager
-from ServoControl.IK import solve_ik
+from ServoControl.kinematics import solve_ik
 import board
 import busio
 from adafruit_pca9685 import PCA9685
@@ -11,9 +11,11 @@ pca.frequency = 50
 
 Arm1 = ArmManager(pca_channels=pca.channels)
 
+# init
 Arm1.arm_init()
 time.sleep(1)
 
+# grab piece
 target1 = [20.5,2,5]
 angles1, status1 = solve_ik(*target1)
 Arm1.move_arm(angles1)
@@ -33,6 +35,7 @@ time.sleep(1)
 Arm1.move_arm(angles1)
 time.sleep(1)
 
+# place piece
 target1 = [16,-2,5]
 angles1, status1 = solve_ik(*target1)
 Arm1.move_arm(angles1)
