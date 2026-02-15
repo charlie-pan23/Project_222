@@ -1,6 +1,9 @@
 import chess
 import chess.engine
 import os
+from Utils.Logger import get_logger
+
+logger = get_logger(__name__)
 
 
 class ZoraChessEngine:
@@ -24,9 +27,9 @@ class ZoraChessEngine:
         """Start the engine process."""
         try:
             self.engine = chess.engine.SimpleEngine.popen_uci(self.engine_path)
-            print(f"[System] Engine started successfully: {self.engine.id.get('name')}")
+            logger.info(f"Engine started successfully: {self.engine.id.get('name')}")
         except Exception as e:
-            print(f"[Error] Failed to start engine: {e}")
+            logger.error(f"Failed to start engine: {e}")
             raise e
 
     def get_best_move(self, fen_string, time_limit=1.0):
@@ -37,7 +40,7 @@ class ZoraChessEngine:
         :return: The best move in UCI format (e.g., 'e2e4').
         """
         if not self.engine:
-            print("[Warning] Engine not started. Attempting to start automatically...")
+            logger.warning("Engine not started. Attempting to start automatically...")
             self.start()
 
         board = chess.Board(fen_string)
@@ -52,4 +55,4 @@ class ZoraChessEngine:
         """Stop the engine and release resources."""
         if self.engine:
             self.engine.quit()
-            print("[System] Engine stopped.")
+            logger.info("Engine stopped.")

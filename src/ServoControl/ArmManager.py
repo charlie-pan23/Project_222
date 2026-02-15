@@ -1,7 +1,5 @@
 import time
 import json
-import os
-import numpy as np
 from ServoControl.Servo import ServoDevice
 from Utils.Logger import get_logger
 
