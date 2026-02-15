@@ -118,3 +118,31 @@ graph TD
 2. Vision detects which piece and where it is located. (J.L.)
 3. Develop the main part: `main.py` (M.P. W.H. J.L.)
 4. Start to deal with the poster.(B.H. M.H. K.F.)
+
+
+## Week 3
+
+### Finished
+
+1. **Poster Production** (B.H. M.H. K.F.)
+   - Initiated the design phase for the project poster; drafted the layout and technical diagrams showcasing the system architecture.
+2. **Logic** (W.H.)
+   - Completed the core logic algorithm and successfully passed the main.py compatibility tests, ensuring seamless communication between the decision-making engine and hardware calls.
+3. **Kinematics & Motion Optimization** (M.P.)
+   - Finalized the software implementation for the Kinematics module.
+   - Successfully passed suitability tests, verifying that the arm can reach target coordinates with the required precision for chessboard grid spacing.
+4. **Hardware Refinement** (K.F.)
+   - Integrated the Raspberry Pi camera extension cable.
+   - Mounted the camera to its finalized position on a metal stand with a test tube clamp, optimizing the Field of View (FOV) for complete board coverage. (The 3D-printed bracket has been denied, we use a metal stand with a test tube clamp instead.)
+5. **Vision Training & Dataset Collection** (J.L. M.P.)
+   - Collected a comprehensive dataset of chessboard and piece images under lab lighting conditions.
+   - Commenced training and debugging of the OpenCV-based detection algorithm for real-time piece identification and coordinate localization.
+6. **User Interface Development** (M.P. W.H.)
+   - Designed and initiated the coding of a Linux terminal-based interface to provide a real-time dashboard.
+
+###  Plan for Week 4
+
+1. System-Wide Integration (main.py) (M.P. W.H. J.L.)
+2. Vision Localization Calibration (J.L. M.P.)
+3. TUI Refinement & UX Polishing (M.P. W.H.)
+4. Poster Finalization (B.H. M.H. K.F.)
