@@ -51,8 +51,75 @@ graph TD
     CV -.-> Main
     Main -.-> IK
     P -.-> Pi
+```
 
 
+```mermaid
+graph TB
+    subgraph Project_Root ["CHESS-PLAYING ROBOTIC SYSTEM<br/>FULL INTEGRATED ARCHITECTURE"]
+        direction TB
+
+        subgraph Layer_1 ["1. INTERACTIVE LAYER: LINUX TERMINAL UI"]
+            direction LR
+            User_In(["User Command<br/>Input"]) --- TUI_Core["Terminal Dashboard<br/>Engine"]
+            TUI_Core --- System_Stats(["Real-time System<br/>Monitoring Feed"])
+        end
+
+        subgraph Layer_2 ["2. CENTRAL PROCESSING CORE"]
+            direction LR
+
+            subgraph Vision_Subsystem ["PERCEPTION: OpenCV"]
+                direction TB
+                Cam["Raspberry Pi<br/>Camera"] --> PreProc["Image<br/>Pre-processing"]
+                PreProc --> Detection["Board & Grid<br/>Detection"]
+                Detection --> Recognition["Piece Recognition<br/>via CNN"]
+                Recognition --> Trans["Coordinate Mapping:<br/>Pixel to Real-world"]
+            end
+
+            subgraph Logic_Subsystem ["DECISION<br/>Logic & AI"]
+                direction TB
+                Controller{"System State<br/>Machine"}
+                AI_Engine["Stockfish 16<br/>Chess Engine"]
+                Safety["Input Blocker /<br/>Sync Mechanism"]
+
+                Controller <--> AI_Engine
+                Controller --> Safety
+            end
+        end
+
+        subgraph Layer_3 ["3. MOTION & ACTUATION LAYER"]
+            direction LR
+            IK_Solver["Inverse Kinematics<br/>(IK) Solver"] --> Sync_Driver["ArmManager:<br/>Multi-Servo Sync"]
+            Sync_Driver --> PWM_Signal["PCA9685 PWM<br/>Controller"]
+        end
+
+        subgraph Layer_4 ["4. PHYSICAL HARDWARE"]
+            direction LR
+            Power["5V External<br/>Power Supply"] --- Servo_Array["6x High-Torque<br/>Servo Motors"]
+            Servo_Array --- Mech_Arm["Robotic Arm<br/>Structure & Gripper"]
+        end
+
+        User_In ==> Controller
+        Trans ==> Controller
+        Controller ==> IK_Solver
+        PWM_Signal ==> Servo_Array
+        Safety -.-> System_Stats
+    end
+
+    %% 样式美化
+    classDef mainBox fill:#ffffff,stroke:#333,stroke-width:4px,font-size:20px,font-weight:bold;
+    classDef subBox fill:#fdfdfd,stroke:#666,stroke-width:2px,font-style:italic;
+    classDef logicNode fill:#e1f5fe,stroke:#01579b,color:#01579b,font-weight:bold;
+    classDef visionNode fill:#e8f5e9,stroke:#2e7d32,color:#1b5e20;
+    classDef hardwareNode fill:#fff3e0,stroke:#ef6c00,color:#e65100;
+    classDef uiNode fill:#f3e5f5,stroke:#7b1fa2,color:#4a148c;
+
+    class Project_Root mainBox;
+    class Layer_1,Layer_2,Layer_3,Layer_4 subBox;
+    class Controller,AI_Engine,Safety logicNode;
+    class Cam,PreProc,Detection,Recognition,Trans visionNode;
+    class Power,Servo_Array,Mech_Arm,PWM_Signal hardwareNode;
+    class TUI_Core,User_In,System_Stats uiNode;
 ```
 
 
