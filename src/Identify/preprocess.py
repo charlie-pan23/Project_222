@@ -5,13 +5,9 @@ import os
 
 CSV_PATH = "chess_data/chessboardcfg.csv"
 
-TARGET_SQUARE = "A8"
-INPUT_IMAGE_PATH = "templates/bQ/bQ_E5_3.jpg"
-
+INPUT_IMAGE_PATH = "templates/bP/bP_A8_1.jpg"
 OUTPUT_DIR = "dataset/empty"
-# OUTPUT_FILENAME = "068.jpg"
-
-START_FILE_INDEX = 132
+START_FILE_INDEX = 951
 
 HOG_WIN_SIZE = (64, 128)
 
