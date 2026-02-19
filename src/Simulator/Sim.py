@@ -74,6 +74,6 @@ def plot_robot_arm(j1, j2, j3, j4):
     plt.legend()
     plt.show()
 
-# # --- 测试角度 ---
-# angles = [0, 0, 0, 0]
-# plot_robot_arm(*angles)
+# --- 测试角度 ---
+angles = [0, 0, 0, 0]
+plot_robot_arm(*angles)

@@ -27,7 +27,8 @@ class ZoraChessEngine:
         """Start the engine process."""
         try:
             self.engine = chess.engine.SimpleEngine.popen_uci(self.engine_path)
-            logger.info(f"Engine started successfully: {self.engine.id.get('name')}")
+            self.engine.configure({"Skill Level": 8})
+            logger.info(f"Engine started successfully: {self.engine.id.get('name')} with Skill Level 8.")
         except Exception as e:
             logger.error(f"Failed to start engine: {e}")
             raise e

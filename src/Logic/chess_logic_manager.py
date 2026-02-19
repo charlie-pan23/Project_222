@@ -9,9 +9,22 @@ class ChessLogicManager:
         self.board = chess.Board()
         self.engine = ZoraChessEngine()
         self.robot_color = robot_color
+        self.taken_by_white = []
+        self.taken_by_black = []
 
     def start_engine(self):
         self.engine.start()
+
+    def _record_capture(self, move, mover_color):
+        """Helper to track which piece was captured."""
+        if self.board.is_capture(move):
+            captured_piece = self.board.piece_at(move.to_square)
+            if captured_piece:
+                # If white moved and captured, add to white's trophy list
+                if mover_color == chess.WHITE:
+                    self.taken_by_white.append(captured_piece.symbol())
+                else:
+                    self.taken_by_black.append(captured_piece.symbol())
 
     def update_human_move(self, uci_str):
         """
@@ -22,6 +35,7 @@ class ChessLogicManager:
             move = chess.Move.from_uci(uci_str)
             if move in self.board.legal_moves:
                 is_capture = self.board.is_capture(move)
+                self._record_capture(move, self.board.turn) # Record before pushing
                 self.board.push(move)
 
                 info = {
