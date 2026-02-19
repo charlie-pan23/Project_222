@@ -1,3 +1,4 @@
+# Test
 from Logic.chess_logic_manager import ChessLogicManager
 import time
 

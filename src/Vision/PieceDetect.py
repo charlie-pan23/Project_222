@@ -5,10 +5,14 @@ import joblib
 import os
 
 class ChessBoardDetector:
-    def __init__(self, model_path="chess_model.pkl", config_path="chessboardcfg.csv"):
+    def __init__(self, model_name="chess_model.pkl", config_name="chessboardcfg.csv"):
         """
         Initializes the ChessBoardDetector by loading the trained SVM model and the configuration for the chessboard squares.
         """
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        model_path = os.path.join(current_dir, model_name)
+        config_path = os.path.join(current_dir, config_name)
+
         if not os.path.exists(model_path):
             raise FileNotFoundError(f"Model file not found at {model_path}")
         if not os.path.exists(config_path):

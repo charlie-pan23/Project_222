@@ -2,6 +2,7 @@ import time
 import json
 from ServoControl.Servo import ServoDevice
 from Utils.Logger import get_logger
+import os
 
 logger = get_logger(__name__)
 
@@ -9,10 +10,15 @@ logger = get_logger(__name__)
 class ArmManager:
 
     def __init__(self, pca_channels, config_file="armconfig.json"):
-        # current_dir = os.path.dirname(os.path.abspath(__file__))
-        # project_root = os.path.dirname(current_dir)
-        # config_path = os.path.join(project_root, config_file)
-        with open(config_file, 'r') as f:
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        src_dir = os.path.dirname(current_dir)
+        config_path = os.path.join(src_dir, config_file)
+
+        if not os.path.exists(config_path):
+            logger.error(f"Config file not found: {config_path}")
+            raise FileNotFoundError(f"Missing configuration at {config_path}")
+
+        with open(config_path, 'r') as f:
             config_data = json.load(f)
 
         # Initialize exactly 6 servos as a fixed list for faster access

@@ -1,14 +1,24 @@
 import cv2
 import time
+import os
 from picamera2 import Picamera2
-from PieceDetect import ChessBoardDetector
+from Vision.PieceDetect import ChessBoardDetector
 
 class VisionSystem:
     """
     Refined Vision System using Picamera2 and OpenCV.
     Integrates with the main loop for event-driven capture.
     """
-    def __init__(self, model_path="chess_model.pkl", config_path="chessboardcfg.csv"):
+    def __init__(self, model_name="chess_model.pkl", config_name="chessboardcfg.csv"):
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        model_path = os.path.join(current_dir, model_name)
+        config_path = os.path.join(current_dir, config_name)
+
+        if not os.path.exists(model_path):
+            raise FileNotFoundError(f"Model file not found: {model_path}")
+        if not os.path.exists(config_path):
+            raise FileNotFoundError(f"Config file not found: {config_path}")
+
         # 1. Initialize Camera (Picamera2 logic from your script)
         self.width, self.height = 1280, 960
         self.picam2 = Picamera2()
