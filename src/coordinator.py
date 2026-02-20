@@ -79,6 +79,35 @@ class GameCoordinator:
             self.current_m_state = "WAITING"
             return False, "Illegal Move"
 
+    def detect_robot_color(self):
+        """
+        Detects which color is placed in Ranks 7 & 8 (near the arm).
+        Returns 'white' if white pieces are there, otherwise 'black'.
+
+        """
+        frame = self.vision.capture_frame()
+        if frame is None:
+            return "white" # Default fallback
+
+        matrix = self.vision.detector.detect_board(frame)
+        view = self.vision.detector.get_matrix_view(matrix)
+
+        white_count = 0
+        black_count = 0
+
+        for r in [0, 1]:
+            for cell in view[r]:
+                if cell.isupper(): white_count += 1
+                elif cell.islower(): black_count += 1
+
+        robot_color = "white" if white_count > black_count else "black"
+        self.robot_color = robot_color
+
+        self.logic.set_robot_color(robot_color)
+        self.arm_action.board.set_perspective(robot_color)
+
+        return robot_color
+
     def execute_robot_response(self):
         """
         Phase 3: Logic calculates best move and ServoControl executes it.
