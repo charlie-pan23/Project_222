@@ -34,7 +34,7 @@ def board_test():
     print("="*30 + "\n")
 
     Z_SAFE = 6.0
-    Z_CHECK = 2
+    Z_CHECK = 1.5
 
     try:
         while True:
