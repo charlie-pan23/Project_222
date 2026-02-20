@@ -117,3 +117,7 @@ class VisionSystem:
     def close(self):
         """Safely stop the camera."""
         self.picam2.stop()
+
+    def get_matrix_view(self, matrix):
+        """Helper to get the 8x8 view from the occupancy matrix."""
+        return self.detector.get_matrix_view(matrix)

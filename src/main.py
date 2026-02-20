@@ -24,8 +24,19 @@ from Vision.VisionCalibration import VisionCalibrator
 from Utils.Logger import get_logger
 logger = get_logger(__name__)
 
+import logging
+from rich.logging import RichHandler
+logging.basicConfig(
+    level="INFO",
+    format="%(message)s",
+    datefmt="[%X]",
+    handlers=[RichHandler(rich_tracebacks=True, console=console)] # 这里的 console 是你定义的 Console 对象
+)
+logger = logging.getLogger("chess")
+
 ssh_enter_pressed = False
 ssh_input_buffer = ""
+
 
 def ssh_input_handler():
     """Captures full instruction strings from SSH."""
@@ -39,7 +50,7 @@ def ssh_input_handler():
 
 def main():
     global ssh_enter_pressed
-    console = Console(width=180, height=50)
+    console = Console(width=180)
 
     # --- 0. Start the SSH input handler thread ---
     input_thread = threading.Thread(target=ssh_input_handler, daemon=True)
@@ -99,138 +110,130 @@ def main():
                 vis_cal.toggle_set()
             elif key == readchar.key.ENTER:
                 break
-
         vis_cal.close_window()
         logger.info("Vision calibration UI closed.")
 
     coord.arm_action.manager.arm_rest()
 
     # --- STAGE 4: INITIAL BOARD SETUP DETECTION ---
+
+    # Initialize timing for the auto-start feature
+    global ssh_enter_pressed
     ssh_enter_pressed = False
+    stage4_start_time = time.time()
+    TIMEOUT_LIMIT = 5.0
+
     logger.info("Entering Stage 4: Board Setup Verification.")
 
     while True:
-        # 1. Retrieve the list of squares missing pieces in Ranks 1, 2, 7, and 8
-        # This calls the vision system to analyze the starting positions
         missing = coord.get_missing_initial_pieces()
+        elapsed_time = time.time() - stage4_start_time
 
-        # Check for success triggers: either all pieces are found OR user hits Enter
-        if (not missing) or ssh_enter_pressed:
-            if ssh_enter_pressed:
-                logger.warning("Manual force initialization triggered via SSH.")
-                startup_ui.render("Force Initializing... Skipping visual verification.")
+        if not missing or elapsed_time >= TIMEOUT_LIMIT or ssh_enter_pressed:
+            if elapsed_time >= TIMEOUT_LIMIT:
+                logger.warning(f"Detection timed out. Proceeding...")
+                startup_ui.render("Timeout! Force Starting...")
             else:
-                startup_ui.render("All pieces detected! Finalizing setup...")
-                time.sleep(1)
+                startup_ui.render("Board Verified! Starting...")
 
-            # 2. AUTOMATIC COLOR & PERSPECTIVE DETECTION
-            # Identify if White or Black is placed near the arm (Ranks 7 & 8)
-            detected_color = coord.detect_robot_color()
+            try:
+                try:
+                    detected_color = coord.detect_robot_color()
+                except Exception:
+                    logger.error("Vision detection failed. Defaulting to BLACK.")
+                    detected_color = "black"
 
-            # 3. SYNCHRONIZATION
-            # Reset the logical engine to the standard start FEN
-            coord.logic.reset_board()
+                coord.logic.reset_game(robot_color=detected_color)
+                coord.arm_action.board.set_perspective(detected_color)
 
-            # Update UI to notify user of the detected identity
-            msg = f"SUCCESS! Robot is playing as [bold yellow]{detected_color.upper()}[/]"
-            startup_ui.render(msg)
+            except Exception as e:
+                logger.error(f"Critical error during sync: {e}")
 
-            # Reset flag for use in Stage 5
+
             ssh_enter_pressed = False
-            time.sleep(2)
+            time.sleep(1.0)
+            print("DEBUG: Exiting Stage 4 now.")
             break
-
-        # 4. UI FEEDBACK FOR MISSING PIECES
-        # Limit display to 8 squares for readability
+        remaining_time = max(0, TIMEOUT_LIMIT - elapsed_time)
         missing_str = ", ".join(missing[:8]) + ("..." if len(missing) > 8 else "")
 
         message = (
-            "[bold cyan]VERIFYING BOARD SETUP...[/]\n\n"
-            "Please place pieces on Ranks 1, 2, 7, & 8.\n"
+            "[bold cyan]INITIALIZING BOARD...[/]\n\n"
+            f"Auto-start in: [bold yellow]{remaining_time:.1f}s[/]\n"
             f"[bold red]Missing pieces at: {missing_str}[/]\n\n"
             "--------------------------------------------------\n"
-            "[bold white]Press ENTER to force start (Detects color & skips check)[/]"
+            "[bold white]Press ENTER to start now[/]"
         )
-
-        # Update the terminal display
         startup_ui.render(message)
+        time.sleep(0.2)
 
-        # Frequency: 2Hz to keep CPU usage low on Raspberry Pi 4B
-        time.sleep(0.5)
 
-    # --- STAGE 5: MAIN GAME LOOP (DASHBOARD) ---
-    global ssh_enter_pressed, ssh_input_buffer # Declare globals for the loop
+    logger.info("Stage 4 complete. Transitioning to Dashboard.")
 
-    with Live(dashboard.layout, refresh_per_second=4, screen=True) as live:
+# --- STAGE 5: MAIN GAME LOOP (Scrolling Log Mode) ---
+
+    # screen=False allows the logs to scroll underneath the Dashboard
+    with Live(dashboard.layout, refresh_per_second=4, screen=False) as live:
+        logger.info("Game Dashboard Active. Real-time vision logs will appear below.")
+
         while True:
-            # 1. Update Real-time UI Data from Coordinator
+            # 1. Update Graphical UI Panels
             ui_data = coord.get_ui_data()
-
-            # 2. Refresh Dashboard Components
             dashboard.layout["board_zone"].update(dashboard.make_board(ui_data["fen"]))
             dashboard.layout["hardware"].update(dashboard.make_system_status())
 
-            # Robot state feedback (WAITING/THINKING/MOVING)
             dashboard.layout["machine_state"].update(
                 dashboard.make_state_box("STATUS", ui_data["m_state"],
                                     "yellow" if ui_data["m_state"] == "WAITING" else "magenta")
             )
-
-            # Chess state feedback (NORMAL/CHECK/MATE)
             dashboard.layout["check_state"].update(
                 dashboard.make_state_box("STATE", ui_data["c_state"],
                                     "white" if ui_data["c_state"] == "NORMAL" else "red")
             )
-
-            # Captured pieces tracking
             dashboard.layout["captured_zone"].update(
                 dashboard.make_taken_panel(ui_data["white_taken"], ui_data["black_taken"])
             )
 
-            # 3. Handle SSH Input: Manual Override or Vision Trigger
+            # 2. Process Input (Manual or Vision)
             if ssh_enter_pressed:
                 instruction = ssh_input_buffer.lower().strip()
-                ssh_enter_pressed = False  # Reset flag immediately
+                ssh_enter_pressed = False
 
-                # OPTION A: MANUAL COORDINATE MODE (e.g., "a2a4")
-                # If input length is 4 and follows the 'char-num-char-num' format.
+                # Case A: Manual Move (e.g., "d2d4")
                 if len(instruction) == 4 and instruction[0].isalpha() and instruction[1].isdigit():
-                    from_sq = instruction[:2]
-                    to_sq = instruction[2:]
-
-                    # Notify UI of Manual Mode
-                    dashboard.layout["machine_state"].update(
-                        dashboard.make_state_box("STATUS", f"MANUAL: {instruction}", "orange3")
-                    )
-
-                    logger.info(f"Manual Override Triggered: Moving {from_sq} to {to_sq}")
-
-                    # Step 1: Sync the logical board state
+                    logger.info(f"MANUAL MOVE: {instruction}")
                     coord.logic.apply_move(instruction)
+                    coord.arm_action.move_piece(instruction[:2], instruction[2:])
 
-                    # Step 2: Physically move the piece (using ArmTest safety heights)
-                    # This bypasses vision detection entirely.
-                    coord.arm_action.move_piece(from_sq, to_sq)
-
-                # OPTION B: VISION TRIGGER MODE (Single Enter)
+                # Case B: Vision Move (Pressing Enter)
                 else:
-                    dashboard.layout["machine_state"].update(
-                        dashboard.make_state_box("STATUS", "THINKING", "blue")
-                    )
+                    logger.info("VISION TRIGGERED: Capturing board state...")
 
-                    # Process human move via vision detection
+                    # --- Vision Distribution Logging ---
+                    # Capture current frame and get raw occupancy matrix
+                    frame = coord.vision.capture_frame()
+                    if frame is not None:
+                        raw_matrix = coord.vision.detector.detect_board(frame)
+                        # Use the helper method you specified to get the 8x8 view
+                        view = coord.vision.detector.get_matrix_view(raw_matrix)
+
+                        logger.info("Current Piece Distribution (Vision):")
+                        for row in view:
+                            # Log each row of the 8x8 grid
+                            logger.info(" ".join(row))
+
+                    # --- Detected Move Logging ---
                     is_valid, move_msg = coord.handle_user_move_event()
 
                     if is_valid:
-                        # Robot calculates and executes its own response
+                        # move_msg typically contains the UCI string like 'e2e4'
+                        logger.info(f"MOVE DETECTED: [bold green]{move_msg}[/]")
                         coord.execute_robot_response()
                     else:
-                        logger.warning(f"Move Error: {move_msg}")
+                        logger.warning(f"Detection Error: {move_msg}")
 
-                # Clear buffer for the next instruction
                 ssh_input_buffer = ""
 
-            # 4. Loop delay to prevent high CPU usage
             time.sleep(0.1)
 
 if __name__ == "__main__":

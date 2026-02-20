@@ -1,5 +1,8 @@
 # BoardConfig.py
 import numpy as np
+from Utils.Logger import get_logger
+
+logger = get_logger(__name__)
 
 class BoardManager:
     def __init__(self):
@@ -20,11 +23,25 @@ class BoardManager:
         self.ranks = ['1', '2', '3', '4', '5', '6', '7', '8']
 
         self.capture_coords = []
+        self.current_side = "white"
         for x_val in [8.5, 11.5]:
             for i in range(8):
                 self.capture_coords.append([x_val, 11.0 + i * 3.0])
 
         self.captured_count = 0
+
+    def set_perspective(self, side):
+        """
+        Sets the global perspective for coordinate mapping.
+        :param side: "white" or "black"
+        """
+        valid_sides = ["white", "black"]
+        if side.lower() in valid_sides:
+            self.current_side = side.lower()
+            logger.info(f"Board perspective set to {self.current_side.upper()}")
+        else:
+            logger.warning(f"Board: Invalid side '{side}', defaulting to WHITE")
+            self.current_side = "white"
 
     def get_slot_coords(self, side, notation):
         """
@@ -32,6 +49,11 @@ class BoardManager:
         :param notation: Chess notation like "e4"
         :return: [x, y, z] coordinates for the given slot, P.S. Z is set to a default safe height of 5.0 cm
         """
+        if side == "black":
+            target_index = 63 - raw_index
+        else:
+            target_index = raw_index
+
         file_char = notation[0].lower()
         rank_char = notation[1]
 

@@ -98,3 +98,5 @@ class ChessLogicManager:
         self.engine.quit()
 
 
+
+
