@@ -1,51 +1,96 @@
 import cv2
-from Vision.Detector import VisionSystem
+import pandas as pd
+import os
 from Utils.Logger import get_logger
 
 logger = get_logger(__name__)
 
 class VisionCalibrator:
-    """Handles visual board alignment using two sets of test points."""
-    def __init__(self, vision_system: VisionSystem):
-        # Injected vision system to use existing Picamera2 instance
+    """
+    Handles visual board alignment by rendering live feed with calibration markers.
+    Integrated with pandas to load bounding boxes from chessboardcfg.csv.
+    """
+    def __init__(self, vision_system):
+        # Injected from coordinator
         self.vision = vision_system
 
-        # Two sets of 8 points for precision checking
+        # Absolute path resolution for the CSV
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        self.csv_path = os.path.join(current_dir, "chessboardcfg.csv")
+
+        # Two sets of target squares to highlight for alignment
         self.sets = {
-            "Set A": ['a1', 'a8', 'h1', 'h8', 'f6', 'c3', 'd5', 'e4'],
-            "Set B": ['a4', 'd8', 'h5', 'e1', 'g2', 'g7', 'b2', 'b7']
+            "Set A": ['A1', 'A8', 'H1', 'H8', 'F6', 'C3', 'D5', 'E4'],
+            "Set B": ['A4', 'D8', 'H5', 'E1', 'G2', 'G7', 'B2', 'B7']
         }
         self.current_set_name = "Set A"
+        self.window_name = "Chess Camera Calibration"
+
+        # Load all ROI data from CSV once during initialization
+        self.all_rois = self._load_roi_data()
+
+    def _load_roi_data(self):
+        """Extracts all square coordinates into a dictionary."""
+        if not os.path.exists(self.csv_path):
+            logger.error(f"Calibration CSV not found at {self.csv_path}")
+            return {}
+
+        try:
+            df = pd.read_csv(self.csv_path)
+            rois = {}
+            # Map every label_name to its bounding box
+            for _, row in df.iterrows():
+                rois[row['label_name']] = {
+                    'x': int(row['bbox_x']),
+                    'y': int(row['bbox_y']),
+                    'w': int(row['bbox_width']),
+                    'h': int(row['bbox_height'])
+                }
+            return rois
+        except Exception as e:
+            logger.error(f"Error loading calibration CSV: {e}")
+            return {}
 
     def toggle_set(self):
-        """Switches between Set A and Set B on Space press."""
+        """Switches between Set A and Set B."""
         self.current_set_name = "Set B" if self.current_set_name == "Set A" else "Set A"
-        logger.info(f"Switched to vision calibration {self.current_set_name}")
-        return self.current_set_name
+        logger.info(f"Vision set toggled to: {self.current_set_name}")
 
     def run_calibration_frame(self):
         """
-        Captures a frame and draws the green calibration boxes.
-        This should be called in a loop by Main.
+        Captures frame, draws green boxes for the active set, and updates UI.
         """
-        frame = self.vision.capture_frame() #
+        frame = self.vision.capture_frame()
         if frame is None:
             return None
 
-        active_points = self.sets[self.current_set_name]
+        display_frame = frame.copy()
+        active_target_labels = self.sets[self.current_set_name]
 
-        # Use existing detector logic to draw boxes on the frame
-        # Note: We assume detector.detect_board_and_draw exists or similar in PieceDetect
-        # If not, we iterate through active_points and draw using BoardConfig metadata
-        for point in active_points:
-            # Drawing logic adapted from PositionAdjust.py
-            # Assuming detector can provide pixel coordinates for notation
-            pass # (Implementation depends on PieceDetect.py's internal mapping)
+        # Draw the target squares on the frame
+        for label in active_target_labels:
+            if label in self.all_rois:
+                pos = self.all_rois[label]
+                x, y, w, h = pos['x'], pos['y'], pos['w'], pos['h']
 
-        # Add UI hints to the frame
-        cv2.putText(frame, f"CALIBRATION: {self.current_set_name}", (20, 40),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
-        cv2.putText(frame, "[Space]: Toggle Set | [Enter]: Exit", (20, 70),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 1)
+                # Draw green rectangle and label
+                cv2.rectangle(display_frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
+                cv2.putText(display_frame, label, (x, y - 10),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
+            else:
+                logger.warning(f"Square {label} not found in ROI data.")
 
-        return frame
+        # Overlay on-screen instructions
+        cv2.putText(display_frame, f"ACTIVE: {self.current_set_name}", (20, 40),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 255), 2)
+        cv2.putText(display_frame, "[Space] Toggle Set | [Enter] Finish", (20, 80),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 1)
+
+        cv2.imshow(self.window_name, display_frame)
+        cv2.waitKey(1) # Necessary for X11/SSH window refresh
+
+        return display_frame
+
+    def close_window(self):
+        """Safely closes the OpenCV window."""
+        cv2.destroyWindow(self.window_name)

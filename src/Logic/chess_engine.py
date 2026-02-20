@@ -7,21 +7,17 @@ logger = get_logger(__name__)
 
 
 class ZoraChessEngine:
-    def __init__(self, stockfish_path=None):
-        """
-        Initialize the chess engine.
-        :param stockfish_path: Path to the Stockfish executable. If None, looks in current dir.
-        """
-        if stockfish_path is None:
-            # Automatically locate stockfish.exe in the current directory
-            current_dir = os.path.dirname(os.path.abspath(__file__))
-            self.engine_path = os.path.join(current_dir, "stockfish.exe")
-            # For Raspberry Pi, you might need to change the line above to:
-            # self.engine_path = "/usr/games/stockfish"
+    def __init__(self, engine_path=None):
+        # Default to the standard Raspberry Pi installation path
+        if engine_path is None:
+            self.engine_path = "/usr/games/stockfish"
         else:
-            self.engine_path = stockfish_path
+            self.engine_path = engine_path
 
-        self.engine = None
+        # Optional: Add a check to ensure the file exists
+        if not os.path.exists(self.engine_path):
+            raise FileNotFoundError(f"Stockfish engine not found at {self.engine_path}. Run 'sudo apt install stockfish'.")
+
 
     def start(self):
         """Start the engine process."""

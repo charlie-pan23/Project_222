@@ -119,6 +119,34 @@ class GameCoordinator:
             "black_taken": self.logic.taken_by_black  #
         }
 
+    def get_missing_initial_pieces(self):
+        """
+        Analyzes the board and returns a list of squares in ranks 1, 2, 7, 8
+        that are expected to have pieces but are detected as empty.
+        """
+        frame = self.vision.capture_frame()
+        if frame is None:
+            return []
+
+        # Get the 8x8 occupancy matrix
+        matrix = self.vision.detector.detect_board(frame)
+        view = self.vision.detector.get_matrix_view(matrix)
+
+        missing_squares = []
+        # Ranks to check: 1, 2 (bottom/White) and 7, 8 (top/Black)
+        # In matrix view: index 0, 1 (Ranks 8, 7) and 6, 7 (Ranks 2, 1)
+        rows_to_check = [0, 1, 6, 7]
+        cols = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
+
+        for r in rows_to_check:
+            rank_num = 8 - r
+            for c_idx, cell in enumerate(view[r]):
+                if cell == ".": # If detected as empty
+                    square_name = f"{cols[c_idx]}{rank_num}"
+                    missing_squares.append(square_name.upper())
+
+        return missing_squares
+
     def close_all(self):
         """Clean up resources on shutdown."""
         self.vision.close()
