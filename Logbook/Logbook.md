@@ -213,3 +213,28 @@ graph TB
 2. Vision Localization Calibration (J.L. M.P.)
 3. TUI Refinement & UX Polishing (M.P. W.H.)
 4. Poster Finalization (B.H. M.H. K.F.)
+
+
+## Week 4
+
+### Finished
+
+1. **Poster Finished** (B.H. M.H. K.F. W.H.)
+   - Finalized the project poster design, including high-resolution system architecture diagrams and performance metrics. Sent for printing.
+   - Completed and published the final Weblog, documenting the entire development process from hardware assembly to software integration.
+2. **User Interface Completed** (M.P. W.H.)
+   - Finalized the core execution loop in `main.py`.
+   - Completed the Linux Terminal UI (TUI) dashboard, featuring real-time system status and move logging.
+3. **Contingency Development: Manual Mode Implementation** (M.P.) (Plan B)
+   - Issue Identified: Detected low accuracy in the initial chessboard vision recognition, preventing stable entry into the main dashboard during automated initialization.
+   - Pivot: Initiated the development of a "Manual Mode" to bypass vision-dependent initialization. This mode allows users to input moves directly into the TUI, ensuring the system remains functional for the final demonstration regardless of ambient lighting or vision constraints.
+4. **Hardware Stability Check** (K.F.)
+   - Conducted a final physical audit of the robotic arm; secured all 3D-printed components and verified cable clearances for the full range of motion.
+
+### Plan for Week 5
+
+1. Complete Manual Mode (M.P.)
+2. Bench Inspection Preparation
+3. Collect the poster (M.H.)
+4. Sustainability Report Writing (B.H. leading)
+5. Vision Debugging (J.L.)
