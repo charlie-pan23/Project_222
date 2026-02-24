@@ -225,7 +225,7 @@ graph TB
 2. **User Interface Completed** (M.P. W.H.)
    - Finalized the core execution loop in `main.py`.
    - Completed the Linux Terminal UI (TUI) dashboard, featuring real-time system status and move logging.
-3. **Contingency Development: Manual Mode Implementation** (M.P.) (Plan B)
+3. **Contingency Development: Manual Mode Implementation** (M.P. J.L.) (Plan B)
    - Issue Identified: Detected low accuracy in the initial chessboard vision recognition, preventing stable entry into the main dashboard during automated initialization.
    - Pivot: Initiated the development of a "Manual Mode" to bypass vision-dependent initialization. This mode allows users to input moves directly into the TUI, ensuring the system remains functional for the final demonstration regardless of ambient lighting or vision constraints.
 4. **Hardware Stability Check** (K.F.)
