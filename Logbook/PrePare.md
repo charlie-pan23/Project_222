@@ -86,3 +86,24 @@
 - We plan to implement the high-level function such as 'Castling' and 'En Passant'.
 
 
+## Q&A
+- The roll servo at the wrist are fixed?
+  - To simplifier the kinematic calculation, it can be used to find a better position to grip.
+- Use another board to control the servos?
+  - The raspberry pi are not able to connect more than 4 servos directly.
+  - The current the raspberry pi can provide commonly cannot larger than 1A, or the raspberry pi will be forced to shut down. The I2C board allows stronger current and can manage them accurantly.
+- Why use 3-wire PWM Servo instead of 4-wire Serial Feedback Servo?
+  - P.S. 3-wire PWM Servo has only input signal and can only apply open-loop control algorithm. 4-wire Serial Feedback Servo has a wire for feedback(angle, temperature,power...), can be used in close-loop control algorithm such as PID.
+  - minimize communication overhead, lower latency, high frequency without waiting for servo feedback, we can use vision check instead of servo feedback.
+  - 3-wire servos allow us to drive all 6 motors simultaneously using parallel PWM signals while 4-wire serial servos requires complex software drivers and protocols.
+  - Environment is highly stable.
+- Suitable application scenarios?
+  - Education & Entertainment
+- What will happen when the servo stall?
+  - The I2C board will recorgnize and cut off the power.
+- Why not use ROS?
+  - Lightweight and low latency, save computing source for vision and logic part.
+- What will happen if illegal movement is detected?
+  - We have move validation in the codes, the logic system will give feedback to the main part and print warning on the screen.
+- Why have Log and Step on the UI?
+  - Traceability
