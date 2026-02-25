@@ -10,8 +10,8 @@ from sklearn.metrics import classification_report, accuracy_score
 # 1. Configuration Area
 # ==========================================
 # Root directory for preprocessed dataset
-# Expected structure: dataset/black, dataset/empty, dataset/white
-DATASET_DIR = "dataset"
+# Expected structure: origindataset/black, origindataset/empty, origindataset/white
+DATASET_DIR = "origindataset"
 
 # HOG Parameters (Must match preprocessing dimensions: 64x128)
 WIN_SIZE = (64, 128)
