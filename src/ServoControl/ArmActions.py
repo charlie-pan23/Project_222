@@ -74,3 +74,35 @@ class ArmAction:
         # Drop in capture bin
         self.manager.goto_coordinate(bin_coords[0], bin_coords[1], self.Z_SAFE)
         self.manager.loose()
+
+def execute_command(self, uci, status, side="white"):
+        """
+        The unified entry point for the Main program.
+        :param uci: uci string (e.g., 'e2e4')
+        :param status: 'Move', 'Capt', 'Same', 'Multi', etc.
+        :param side: "white" or "black" perspective
+        """
+        if status == 'Same' or uci is None:
+            logger.info("No move required.")
+            return "Same"
+
+        if status == 'Multi':
+            logger.warning("Ambiguous move (Multi). Arm stands by for safety.")
+            return "Multi"
+
+        # 1. Handle Capture first if necessary
+        if status == 'Capt':
+            # In a capture like 'e2d3', the piece to remove is at 'd3'
+            target_sq = uci[2:4]
+            logger.info(f"Status is CAPT. Removing piece at {target_sq} first.")
+            self.handle_capture(target_sq, side=side)
+
+        # 2. Execute the actual move
+        # This moves the piece from start_sq to end_sq
+        logger.info(f"Status is {status}. Executing move: {uci}")
+        self.execute_uci_move(uci, side=side)
+
+        # 3. Always return to rest so the camera has a clear view for next turn
+        self.rest()
+
+        return "Success"

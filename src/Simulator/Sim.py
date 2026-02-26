@@ -60,7 +60,7 @@ def plot_robot_arm(j1, j2, j3, j4):
     joints = np.array([p0, p2, p3, p4])
     ax.scatter(joints[:, 0], joints[:, 1], joints[:, 2], color='red', s=50, zorder=5)
 
-    # 设置坐标轴范围 (考虑到新增了向下10cm，调整Z轴下限)
+    # 设置坐标轴范围
     ax.set_xlim([-25, 25])
     ax.set_ylim([-25, 25])
     ax.set_zlim([-5, 30])

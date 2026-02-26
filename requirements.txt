@@ -1,0 +1,23 @@
+# --- Core Math & Data ---
+numpy          # Used for kinematic calculations and board matrices
+pandas         # Used for loading chessboard configuration CSVs
+
+# --- Chess Logic & AI ---
+python-chess   # The core chess logic and Move/Board management
+
+# --- Vision & Image Processing ---
+opencv-python  # Required for VisionCalibration and debug frames
+joblib         # Required by PieceDetect.py to load the SVM model
+scikit-learn   # Required for the SVM classifier logic
+# Note: Picamera2 is usually pre-installed on Raspberry Pi OS.
+# If not, use: pip install picamera2
+
+# --- UI & Dashboard ---
+rich           # Powers the entire TUI dashboard, panels, and live updates
+psutil         # Used for hardware telemetry (CPU/RAM/Temp)
+readchar       # Captures keyboard inputs during calibration
+
+# --- Hardware Control (Raspberry Pi I2C/PCA9685) ---
+adafruit-circuitpython-pca9685  # Drivers for the PCA9685 servo controller
+adafruit-circuitpython-motor    # Provides the Motor class for controlling the H-bridge
+Adafruit-Blinka                 # Provides board and busio support on Raspberry Pi

@@ -60,6 +60,8 @@ class ChessLogicManager:
         move = chess.Move.from_uci(best_move_uci)
 
         is_capture = self.board.is_capture(move)
+        if is_capture:
+            self._record_capture(move, self.board.turn)
 
         self.board.push(move)
 

@@ -56,3 +56,19 @@ class UIOverlays:
             width=70,
             height=8
         )
+
+    @staticmethod
+    def module_config_overlay(v_status, a_status):
+        """
+        Visual indicator of which modules are being loaded.
+        """
+        v_text = "[green]ENABLED[/]" if v_status else "[red]DISABLED[/]"
+        a_text = "[green]ENABLED[/]" if a_status else "[red]DISABLED[/]"
+
+        content = Text.from_markup(
+            f"\n[bold white]Target Environment Configuration[/]\n\n"
+            f"Vision System: {v_text}\n"
+            f"Robotic Arm:   {a_text}\n\n"
+            "Initializing System..."
+        )
+        return Panel(Align.center(content, vertical="middle"), border_style="cyan", width=60, height=10)

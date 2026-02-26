@@ -5,6 +5,7 @@ from rich.table import Table
 from rich.text import Text
 from rich.align import Align
 from rich.console import Console
+from Utils.Logger import LOG_BUFFER
 
 class ChessDashboard:
     """
@@ -17,20 +18,45 @@ class ChessDashboard:
         self._setup_layout()
 
     def _setup_layout(self):
-        """Define the structural regions. 'main_area' holds the visual data."""
+        """
+        Define the structural regions.
+        Divided into Main Area, Log Zone, Input Zone, and Hardware Status.
+        """
         self.layout.split_column(
-            Layout(name="main_area", size=24),
-            Layout(name="hardware", size=3),
+            Layout(name="main_area", size=32),   # Main visual data (Board, Info)
+            Layout(name="log_zone", size=12),     # Scrolling system logs
+            Layout(name="input_zone", size=3),   # Real-time UCI input area
+            Layout(name="hardware", size=3),     # System telemetry
         )
+
+        # Internal split for main_area remains largely the same
         self.layout["main_area"].split_row(
-            Layout(name="board_zone", ratio=3),
-            Layout(name="captured_zone", size=15),
-            Layout(name="info_zone", ratio=2),
+            Layout(name="board_zone", ratio=4),
+            Layout(name="captured_zone", size=25),
+            Layout(name="info_zone", ratio=1),
         )
         self.layout["info_zone"].split_column(
             Layout(name="steps", ratio=3),
             Layout(name="machine_state", size=3),
             Layout(name="check_state", size=3),
+        )
+    def make_log_panel(self):
+        """Retrieve logs from LOG_BUFFER and render as a scrolling panel."""
+        log_content = "\n".join(list(LOG_BUFFER))
+        return Panel(
+            Text(log_content, style="white"),
+            title="[bold yellow]SYSTEM LOGS[/]",
+            border_style="yellow",
+            padding=(0, 1)
+        )
+
+    def make_input_panel(self, current_input=""):
+        """Displays the text currently being typed by the user."""
+        return Panel(
+            Text(f"> {current_input}", style="bold green"),
+            title="[bold cyan]UCI COMMAND INPUT[/]",
+            border_style="cyan",
+            padding=(0, 1)
         )
 
     def format_piece(self, char):
@@ -47,12 +73,12 @@ class ChessDashboard:
             show_header=False,
             show_edge=True,
             box=None,
-            padding=(0, 2),
+            padding=(1, 1),
             border_style="bright_blue"
         )
 
         for _ in range(8):
-            inner_table.add_column(justify="center")
+            inner_table.add_column(justify="center",width=5)
 
         board_str = fen.split(' ')[0]
         rows = board_str.split('/')
@@ -66,13 +92,13 @@ class ChessDashboard:
                     row_data.append(self.format_piece(char))
             inner_table.add_row(*row_data)
 
-        rank_col = Table.grid(padding=(1, 0))
+        rank_col = Table.grid(padding=(2, 0))
         for i in range(8, 0, -1):
             rank_col.add_row(Text(f"{i} ", style="bold magenta"))
 
-        file_labels = Text("    a    b    c    d    e    f    g    h", style="bold magenta")
+        file_labels = Text("    a      b      c      d      e      f      g      h", style="bold magenta")
 
-        board_with_ranks = Table.grid(padding=1)
+        board_with_ranks = Table.grid(padding=0)
         board_with_ranks.add_column()
         board_with_ranks.add_column()
         board_with_ranks.add_row(Align(rank_col, vertical="middle"), Panel(inner_table, border_style="bright_blue", padding=0))
@@ -121,13 +147,29 @@ class ChessDashboard:
         )
 
     def make_taken_panel(self, white_taken, black_taken):
-        """Captured pieces panel."""
-        top_str = "".join([self.format_piece(p).markup for p in white_taken])
-        bottom_str = "".join([self.format_piece(p).markup for p in black_taken])
-        combined_content = f"{top_str}\n\n[dim]---\n\n{bottom_str}"
+        """Captured pieces panel with wider spacing and clear labels."""
+        top_str = " ".join([self.format_piece(p).markup for p in white_taken])
+        bottom_str = " ".join([self.format_piece(p).markup for p in black_taken])
+
+        # Use placeholders if lists are empty
+        w_display = top_str if top_str else "[dim]No captures[/]"
+        b_display = bottom_str if bottom_str else "[dim]No captures[/]"
+
+        combined_content = f"[bold yellow]White holds:[/]\n{w_display}\n\n[dim]------------------[/]\n\n[bold cyan]Black holds:[/]\n{b_display}"
 
         return Panel(
             Align.center(Text.from_markup(combined_content), vertical="middle"),
-            title="TAKEN",
-            border_style="white"
+            title="[bold white]PIECES TAKEN[/]",
+            border_style="white",
+            padding=(1, 1)
+        )
+    def make_steps_panel(self, move_history):
+        recent_moves = move_history[-10:]
+        steps_text = "\n".join([f"[bold cyan]{i+1}.[/] {move}" for i, move in enumerate(recent_moves)])
+
+        return Panel(
+            Text.from_markup(steps_text if steps_text else "No moves yet..."),
+            title="[bold green]MOVE HISTORY[/]",
+            border_style="green",
+            padding=(1, 2)
         )
